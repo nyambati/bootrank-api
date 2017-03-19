@@ -1,0 +1,9 @@
+server:
+  build: ../../
+  dockerfile: docker/dev/Dockerfile
+  ports:
+    - "3000:3000"
+redis:
+  image: redis
+mongodb:
+  image: mongo

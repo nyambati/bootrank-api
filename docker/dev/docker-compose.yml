@@ -1,0 +1,30 @@
+web:
+  extends:
+    file: ../common/services.yml
+    service: server
+  links:
+    - redis
+    - mongo
+    
+  ports:
+    - "3000:3000"
+
+  environment:
+    DATABASE_URL: mongo
+    REDIS_URL: redis
+    PORT: 3000
+  env_file:
+    - ../../.env
+
+redis:
+  extends:
+    file: ../common/services.yml
+    service: redis
+
+mongo:
+  extends:
+    file: ../common/services.yml
+    service: mongodb
+
+
+
