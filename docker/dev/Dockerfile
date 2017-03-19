@@ -1,14 +1,21 @@
+# latest official node image
 FROM node:latest
 
-WORKDIR /usr/www
+MAINTAINER Thomas Nyambati <thomasnyambati@gmail.com>
 
-COPY server /usr/www/server
-COPY index.js /usr/www
-COPY package.json /usr/www
+# use nodemon for development
+RUN npm install --global nodemon
 
-COPY scripts/init.sh /usr/www
-RUN chmod 0755 init.sh
+# use cached layer for node modules
+ADD package.json /tmp/package.json
+RUN cd /tmp && npm install > /dev/null 2>&1
+RUN mkdir -p /usr/src && cp -a /tmp/node_modules /usr/src/
+
+# add project files
+WORKDIR /usr/src
+ADD . /usr/src
 
 EXPOSE 3000
+RUN ls
 
-ENTRYPOINT [ "./init.sh", "npm start"]
+CMD ["npm","start"]
