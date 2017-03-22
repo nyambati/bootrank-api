@@ -16,6 +16,5 @@ WORKDIR /usr/src
 ADD . /usr/src
 
 EXPOSE 3000
-RUN ls
 
 CMD ["npm","start"]

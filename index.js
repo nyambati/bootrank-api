@@ -1,4 +1,5 @@
 const app = require('./server');
+const { connect } = require('./server/config');
 const port = process.env.PORT
 
 app.listen(port, error => {

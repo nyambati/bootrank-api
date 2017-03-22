@@ -1,6 +1,7 @@
 'use strict';
 module.exports = (mongoose, database_url) => {
   mongoose.connect(database_url);
+  mongoose.Promise = global.Promise;
 
   mongoose.connection.on('connected', () => {
     console.log('Connecton to mongo database established');
