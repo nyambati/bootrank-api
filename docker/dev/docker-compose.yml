@@ -11,9 +11,21 @@ web:
   environment:
     DATABASE_URL: mongodb://mongo/bootrank
     REDIS_URL: redis://redis/10
+    NODE_ENV: development
     PORT: 3000
   env_file:
     - ../../.env
+nginx:
+  restart: always
+  build: ../nginx
+  ports:
+    - "80:80"
+  volumes:
+    - /www/public
+  volumes_from:
+    - web
+  links:
+    - web:web
 
 redis:
   extends:

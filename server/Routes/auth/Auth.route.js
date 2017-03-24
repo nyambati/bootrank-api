@@ -32,5 +32,8 @@ Router.route('/auth/session')
 
   });
 
+Router.route('/auth/logout')
+  .get(Auth.logout);
+
 
 module.exports = Router;

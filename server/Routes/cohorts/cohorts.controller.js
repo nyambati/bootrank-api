@@ -4,8 +4,8 @@ const { isValidCohort } = require('../../validators/cohorts');
 class CohortsController {
 
   static create(req, res) {
-    let errors = isValidCohort(res.body);
-    if (errors) {
+    let errors = isValidCohort(req.body);
+    if (errors.length >= 1) {
       return res.status(502).json({
         error: 'Missing parameters',
         errors

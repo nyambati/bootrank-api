@@ -54,7 +54,7 @@ class AuthController {
       .exec()
       .then(invite => {
         if (!invite) {
-          return done(null, {
+          return done(null, false, {
             message: 'Invitation not found'
           });
         }
@@ -79,6 +79,16 @@ class AuthController {
           .catch(err => done(err));
       })
       .catch(err => done(err));
+  }
+
+  static logout(req, res) {
+    return req.session.destroy((error) => {
+      if (error) return res.status(500).json(error);
+      return res.status(200)
+        .json({
+          message: 'You have been logged out'
+        });
+    });
   }
 }
 

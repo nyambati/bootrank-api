@@ -15,7 +15,7 @@ class InvitesController {
       new: true
     };
 
-    return Invite.findByIdAndUpdate({ email: req.body.email }, update, options).exec()
+    return Invite.findOneAndUpdate({ email: req.body.email }, update, options).exec()
       .then(invite => {
         return res.status(200).json(invite);
       })

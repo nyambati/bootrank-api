@@ -36,8 +36,8 @@ class App {
       }),
       proxy: true,
       resave: true,
-      saveUninitialized: true,
-      cookie: { secure: true }
+      saveUninitialized: false,
+      cookie: { secure: env.secureCookie }
     }));
 
     Auth(env);

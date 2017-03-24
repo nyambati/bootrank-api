@@ -1,4 +1,5 @@
-FROM node:latest
+FROM node:boron
+
 MAINTAINER Thomas Nyambati <thomasnyambati@gmail.com>
 
 ADD package.json /tmp/package.json
