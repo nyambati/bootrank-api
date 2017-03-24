@@ -1,0 +1,7 @@
+docker
+scripts
+.dockerignore
+.gitignore
+*.yml
+Makefile
+.editorconfig

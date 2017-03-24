@@ -1,6 +1,8 @@
 server:
   build: ../../
   dockerfile: docker/dev/Dockerfile
+  volumes:
+    - ../../:/usr/src
   ports:
     - "3000:3000"
 redis:
