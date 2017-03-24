@@ -5,26 +5,40 @@ web:
   links:
     - redis
     - mongo
-    
   ports:
     - "3000:3000"
 
   environment:
-    DATABASE_URL: mongo
-    REDIS_URL: redis
+    DATABASE_URL: mongodb://mongo/bootrank
+    REDIS_URL: redis://redis/10
+    NODE_ENV: development
     PORT: 3000
   env_file:
     - ../../.env
+nginx:
+  restart: always
+  build: ../nginx
+  ports:
+    - "80:80"
+  volumes:
+    - /www/public
+  volumes_from:
+    - web
+  links:
+    - web:web
 
 redis:
   extends:
     file: ../common/services.yml
     service: redis
+  ports:
+    - "6379:6379"
 
 mongo:
   extends:
     file: ../common/services.yml
     service: mongodb
-
+  ports:
+    - "27017:27017"
 
 

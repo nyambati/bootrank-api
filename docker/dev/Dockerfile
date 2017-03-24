@@ -1,5 +1,5 @@
 # latest official node image
-FROM node:latest
+FROM node:boron
 
 MAINTAINER Thomas Nyambati <thomasnyambati@gmail.com>
 
@@ -16,6 +16,5 @@ WORKDIR /usr/src
 ADD . /usr/src
 
 EXPOSE 3000
-RUN ls
 
 CMD ["npm","start"]
