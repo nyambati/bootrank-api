@@ -1,6 +1,6 @@
 const Router = require('express').Router();
 const passport = require('passport');
-const Auth = require('./Auth.controller')
+const Auth = require('./Auth.controller');
 
 let scope = [
   'https://www.googleapis.com/auth/userinfo.email',
@@ -9,7 +9,7 @@ let scope = [
 ];
 
 Router.route('/auth/google')
-  .get(passport.authenticate('google', { scope }))
+  .get(passport.authenticate('google', { scope }));
 
 
 Router.route('/auth/google/callback')
@@ -28,9 +28,9 @@ Router.route('/auth/session')
 
     return res
       .status(200)
-      .json(req.session.passport.user)
+      .json(req.session.passport.user);
 
-  })
+  });
 
 
-module.exports = Router
+module.exports = Router;

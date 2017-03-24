@@ -9,7 +9,7 @@ RUN mkdir -p /usr/src && cp -a /tmp/node_modules /usr/src/
 WORKDIR /usr/src
 ADD . /usr/src
 
-RUN npm install -g mocha
+RUN npm install -g mocha > /dev/null 2>&1
 
 EXPOSE 3000
 

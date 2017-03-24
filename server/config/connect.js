@@ -1,4 +1,4 @@
-'use strict';
+/* eslint-disable no-console */
 module.exports = (mongoose, database_url) => {
   mongoose.connect(database_url);
   mongoose.Promise = global.Promise;

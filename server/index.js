@@ -14,13 +14,13 @@ class App {
 
   constructor() {
     this.express = express();
-    this.connect(mongoose, env.db)
+    this.connect(mongoose, env.db);
     this.middleware();
     this.route();
   }
 
   connect(mongoose, db) {
-    return connect(mongoose, db)
+    return connect(mongoose, db);
   }
 
 
@@ -36,10 +36,12 @@ class App {
       }),
       proxy: true,
       resave: true,
-      saveUninitialized: true
+      saveUninitialized: true,
+      cookie: { secure: true }
     }));
 
     Auth(env);
+
     passport.serializeUser((user, done) => {
       done(null, user);
     });
@@ -55,7 +57,7 @@ class App {
 
   route() {
 
-    Routes(this.express)
+    Routes(this.express);
 
     const IndexRoute = (req, res) => {
       return res.status(200)
@@ -64,10 +66,10 @@ class App {
           host: req.headers.host,
           user_agent: req.headers['user-agent'],
           request_origin: req.ip
-        })
-    }
+        });
+    };
 
-    this.express.get('/*', IndexRoute)
+    this.express.get('/*', IndexRoute);
   }
 }
 

@@ -9,4 +9,4 @@ module.exports = {
       callbackURL: process.env.GOOGLE_CALLBACK_URL
     }
   }
-}
+};
