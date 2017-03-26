@@ -9,6 +9,10 @@ const Invites = new Schema({
     type: String,
     unique: true,
     required: true
+  },
+  sent: {
+    type: Boolean,
+    default: false
   }
 });
 

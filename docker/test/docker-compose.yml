@@ -11,6 +11,8 @@ test:
     DATABASE_URL: mongo
     REDIS_URL: redis
     PORT: 3000
+  env_file: 
+    - ../../.env
 redis:
   extends:
     file: ../common/services.yml

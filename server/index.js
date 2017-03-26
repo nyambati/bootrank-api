@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 var cookieParser = require('cookie-parser');
 const passport = require('passport');
-const MongoStore = require('connect-mongo')(session);
+const RedisStore = require('connect-redis')(session);
 const Routes = require('./Routes');
 const Auth = require('./Routes/auth/Auth.service');
 const { connect, env } = require('./config');
@@ -23,7 +23,6 @@ class App {
     return connect(mongoose, db);
   }
 
-
   middleware() {
     this.express.use(logger('dev'));
     this.express.use(bodyParser.json());
@@ -31,8 +30,8 @@ class App {
     this.express.use(cookieParser());
     this.express.use(session({
       secret: env.secretKey,
-      store: new MongoStore({
-        url: env.db
+      store: new RedisStore({
+        url: env.redis
       }),
       proxy: true,
       resave: true,

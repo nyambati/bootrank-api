@@ -70,7 +70,8 @@ class ProjectsController {
       });
     }
 
-    return Project.find({ _cohort: req.params.cohortId }).select('_cohort project scores _owner')
+    return Project.find({ _cohort: req.params.cohortId, _owner: req.decoded._id })
+      .select('_cohort project scores _owner')
       .populate('scores').populate('_owner').exec()
       .then(projects => {
         function mapProjectScores(callback) {
@@ -147,7 +148,8 @@ class ProjectsController {
       }
     };
 
-    return Project.findOneAndUpdate(req.params.id, update).exec()
+    return Project.findOneAndUpdate({ _id: req.params.id, _owner: req.decoded._id }, update)
+      .exec()
       .then(() => {
         return res.status(204).json({
           message: 'project was updated successfully'
@@ -163,7 +165,7 @@ class ProjectsController {
       });
     }
 
-    return Project.findOneAndRemove(req.params.id).exec()
+    return Project.findOneAndRemove({ _id: req.params.id, _owner: req.decoded._id }).exec()
       .then(() => {
         return res.status(200)
           .send({

@@ -1,6 +1,7 @@
+const { hasRequiredProperties } = require('./core');
 function isValidProject(project) {
 
-  let requiredProperties = [
+  let required = [
     'owner',
     'cohort',
     'project',
@@ -10,19 +11,9 @@ function isValidProject(project) {
     'demo'
   ];
 
-  let errors = [];
-
-  for (let prop of requiredProperties) {
-    if (!project.keys(project).includes(prop)) {
-      errors.push(`Missing required property ${prop}`);
-    }
-  }
-
-  return errors;
-
+  return hasRequiredProperties(project, required);
 }
-
 
 module.exports = {
   isValidProject
-}
+};

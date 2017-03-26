@@ -7,12 +7,12 @@ server {
     
     ssl_certificate    /etc/nginx/ssl/bootrank.crt; 
     ssl_certificate_key    /etc/nginx/ssl/bootrank.key;
-    server_name localhost;
+    server_name bootrank.dev;
     access_log /var/log/nginx/nodejs_project.log;
     charset utf-8;
 
     location /public {
-        alias /src/app/public;
+        alias /src/public;
     }
 
     location / {

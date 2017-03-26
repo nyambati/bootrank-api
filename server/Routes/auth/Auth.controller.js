@@ -1,10 +1,45 @@
-const jwt = require('jsonwebtoken');
+const { sign } = require('jsonwebtoken');
+const { isValidUser } = require('../../validators/users');
+const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { env } = require('../../config');
 const { Invite, User, Cohort } = require('../../Models');
 
+const createToken = (user) => {
+  return sign(user, env.secretKey, {
+    expiresIn: '24h'
+  });
+};
+
 class AuthController {
 
-  static login(req, res) {
+  static create(req, res) {
+
+    let errors = isValidUser(req.body);
+
+    if (errors.length >= 1) {
+      return res.status(502).json({
+        error: 'Missing require parameters',
+        errors
+      });
+    }
+
+    let hashedPassword = hashSync(req.body.password, genSaltSync(10));
+
+    return User
+      .create({
+        name: `${req.body.firstName} ${req.body.lastName}`,
+        email: req.body.email,
+        password: hashedPassword
+      })
+      .then(user => {
+        let token = createToken({ _id: user._id });
+        res.status(201).json({ user, token });
+      })
+      .catch(error => res.status(500).json(error));
+  }
+
+
+  static loginWithGoogle(req, res) {
 
     if (req.user.data && req.user.data.domain === 'andela.com') {
       return res.redirect(`/cohorts?id=${req.user.data._id}`);
@@ -12,12 +47,55 @@ class AuthController {
 
     return res.redirect('/');
   }
-  static googleAuth(accessToken, refreshToken, profile, done) {
-    const createToken = (user) => {
-      return jwt.sign(user, env.secretKey, {
-        expiresIn: '24h'
+
+  static loginWithPassword(req, res) {
+    let { email, password } = req.body;
+
+    if (!email && !password) {
+      return res.status(502)
+        .json({
+          message: 'Missing required paramters username and password'
+        });
+    }
+
+    return User
+      .findOne({ email })
+      .exec()
+      .then(user => {
+        if (!user) {
+          return res.status(404).json({
+            message: `User of email ${email} not found`
+          });
+        }
+        // if has invalid password
+        if (!compareSync(password, user.password)) {
+          return res.status(403).json({
+            message: `Invalid password of account ${user.email}`
+          });
+        }
+        let token = createToken({ _id: user._id });
+        return res.status(200).json({
+          user,
+          token
+        });
       });
-    };
+  }
+
+  static session(req, res) {
+
+    if (!req.session.passport) {
+      return res
+        .status(401)
+        .json({
+          status: 'Unauthorized access',
+          error: 'Login to have access to the api'
+        });
+    }
+
+    return res.status(200).json(req.session.passport.user);
+  }
+
+  static googleAuth(accessToken, refreshToken, profile, done) {
 
     let data = profile._json;
     let update = {

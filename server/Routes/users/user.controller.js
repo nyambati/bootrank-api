@@ -1,6 +1,7 @@
 const { User } = require('../../Models');
 
 class UserController {
+
   static all(req, res) {
     return User.find({})
       .populate('projects')

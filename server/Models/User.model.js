@@ -5,17 +5,13 @@ const Schema = mongoose.Schema,
       type: String,
       required: true
     },
-    gender: {
-      type: String,
-      required: false
-    },
+    gender: String,
     role: {
       type: String,
       default: 'user'
     },
     google_id: {
       type: Number,
-      required: true,
       unique: true
     },
     email: {
@@ -23,13 +19,11 @@ const Schema = mongoose.Schema,
       required: true,
       unique: true
     },
-    google_plus: {
+    google_plus: String,
+    img_url: String,
+    password: {
       type: String,
-      required: false
-    },
-    img_url: {
-      type: String,
-      required: true
+      unique: true
     },
     status: {
       type: String,
@@ -45,7 +39,7 @@ const Schema = mongoose.Schema,
     },
     updated_at: {
       type: Date,
-      default: Date.now
+      default: Date.now()
     }
   });
 

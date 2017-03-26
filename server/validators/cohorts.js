@@ -1,5 +1,7 @@
+const { hasRequiredProperties } = require('./core');
+
 function isValidCohort(cohort) {
-  let requiredProperties = [
+  let required = [
     'name',
     'number',
     'capacity',
@@ -7,18 +9,8 @@ function isValidCohort(cohort) {
     'trainers'
   ];
 
-  let errors = [];
-
-  for (let prop of requiredProperties) {
-    if (!Object.getOwnPropertyNames(cohort).includes(prop)) {
-      errors.push(`Missing required property ${prop}`);
-    }
-  }
-
-  return errors;
-
+  return hasRequiredProperties(cohort, required);
 }
-
 
 module.exports = {
   isValidCohort

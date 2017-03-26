@@ -11,29 +11,19 @@ let scope = [
 Router.route('/auth/google')
   .get(passport.authenticate('google', { scope }));
 
-
 Router.route('/auth/google/callback')
-  .get(passport.authenticate('google', { failureRedirect: '/login' }), Auth.login);
+  .get(passport.authenticate('google', { failureRedirect: '/login' }), Auth.loginWithGoogle);
 
 Router.route('/auth/session')
-  .get((req, res) => {
-    if (!req.session.passport) {
-      return res
-        .status(401)
-        .json({
-          status: 'Unauthorized access',
-          error: 'Login to have access to the api'
-        });
-    }
+  .get(Auth.session);
 
-    return res
-      .status(200)
-      .json(req.session.passport.user);
+Router.route('/auth/signup')
+  .post(Auth.create);
 
-  });
+Router.route('/auth/login')
+  .post(Auth.loginWithPassword);
 
 Router.route('/auth/logout')
   .get(Auth.logout);
-
 
 module.exports = Router;
