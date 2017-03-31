@@ -11,8 +11,10 @@ test:
     DATABASE_URL: mongo
     REDIS_URL: redis
     PORT: 3000
-  env_file: 
-    - ../../.env
+    SECRET_TOKEN_KEY: ${SECRET_TOKEN_KEY}
+    GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    GOOGLE_CALLBACK_URL:  ${GOOGLE_CALLBACK_URL}
 redis:
   extends:
     file: ../common/services.yml
