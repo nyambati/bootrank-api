@@ -34,7 +34,14 @@ redis:
     service: redis
   ports:
     - "6379:6379"
-
+commander:
+  image: tenstartups/redis-commander
+  command: --redis-host redis
+  links:
+    - redis:redis
+  ports:
+    - "8081:8081"
+    
 mongo:
   extends:
     file: ../common/services.yml

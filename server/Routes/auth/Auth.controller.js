@@ -3,6 +3,7 @@ const { isValidUser } = require('../../validators/users');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { env } = require('../../config');
 const { Invite, User, Cohort } = require('../../Models');
+const { mongoErrorParser } = require('../../parsers');
 
 const createToken = (user) => {
   return sign(user, env.secretKey, {
@@ -35,7 +36,7 @@ class AuthController {
         let token = createToken({ _id: user._id });
         res.status(201).json({ user, token });
       })
-      .catch(error => res.status(500).json(error));
+      .catch(error => res.status(500).json(mongoErrorParser(error)));
   }
 
 
@@ -62,17 +63,20 @@ class AuthController {
       .findOne({ email })
       .exec()
       .then(user => {
+
         if (!user) {
           return res.status(404).json({
             message: `User of email ${email} not found`
           });
         }
+
         // if has invalid password
         if (!compareSync(password, user.password)) {
           return res.status(403).json({
             message: `Invalid password of account ${user.email}`
           });
         }
+
         let token = createToken({ _id: user._id });
         return res.status(200).json({
           user,
@@ -123,13 +127,12 @@ class AuthController {
           let token = createToken({ _id: data._id });
           return done(null, { data, token });
         })
-        .catch(err => done(err));
+        .catch(error => done(mongoErrorParser(error)));
     }
 
     // if the user has no domain
-    Invite
-      .findOne({ email: data.emails[0].value })
-      .exec()
+    return Invite
+      .findOne({ email: data.emails[0].value }).exec()
       .then(invite => {
         if (!invite) {
           return done(null, false, {
@@ -138,8 +141,7 @@ class AuthController {
         }
 
         return User
-          .findOneAndUpdate({ _id: invite._id }, update, options)
-          .exec()
+          .findOneAndUpdate({ _id: invite._id }, update, options).exec()
           .then(data => {
             return Cohort.findOneAndUpdate({
               _id: invite.cohort, _campers: { $ne: data._id }
@@ -154,9 +156,9 @@ class AuthController {
               })
               .catch(err => done(err));
           })
-          .catch(err => done(err));
+          .catch(error => done(mongoErrorParser(error)));
       })
-      .catch(err => done(err));
+      .catch(error => done(mongoErrorParser(error)));
   }
 
   static logout(req, res) {
@@ -168,6 +170,7 @@ class AuthController {
         });
     });
   }
+
 }
 
 module.exports = AuthController;

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-var cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const passport = require('passport');
 const RedisStore = require('connect-redis')(session);
 const Routes = require('./Routes');
@@ -24,10 +24,12 @@ class App {
   }
 
   middleware() {
-    this.express.use(logger('dev'));
+    if (!env.secure) {
+      this.express.use(logger('dev'));
+    }
+    this.express.use(helmet());
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({ extended: false }));
-    this.express.use(cookieParser());
     this.express.use(session({
       secret: env.secretKey,
       store: new RedisStore({
@@ -36,7 +38,11 @@ class App {
       proxy: true,
       resave: true,
       saveUninitialized: false,
-      cookie: { secure: env.secureCookie }
+      cookie: {
+        secure: env.secure,
+        httpOnly: env.secure,
+        expires: new Date(Date.now() + 60 * 60 * 1000)
+      }
     }));
 
     Auth(env);
