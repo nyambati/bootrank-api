@@ -69,8 +69,8 @@ class App {
         .json({
           status: 'online',
           host: req.headers.host,
-          user_agent: req.headers['user-agent'],
-          request_origin: req.ip
+          userAgent: req.headers['user-agent'],
+          requestOrigin: req.ip
         });
     };
 

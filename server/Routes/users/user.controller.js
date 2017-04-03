@@ -3,22 +3,14 @@ const { User } = require('../../Models');
 class UserController {
 
   static all(req, res) {
-    return User.find({})
-      .populate('projects')
-      .exec()
-      .then(users => {
-        return res
-          .status(200)
-          .json(users);
-      })
+    return User.find({}).populate('projects').exec()
+      .then(users => res.status(200).json(users))
       .catch(error => res.status(500).json(error));
   }
 
   static find(req, res) {
     if (req.query.role) {
-      return User.findOne({
-        role: req.query.role
-      })
+      return User.findOne({ role: req.query.role })
         .populate('projects').populate('projects.scores')
         .exec()
         .then(user => {
@@ -81,7 +73,7 @@ class UserController {
     return User.findOneAndRemove(req.params.id)
       .exec()
       .then(() => {
-        res.status(200)
+        return res.status(200)
           .json({
             message: 'User deleted successfully'
           });

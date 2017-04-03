@@ -2,27 +2,32 @@ const async = require('async');
 const { Project, User } = require('../../Models');
 const { isValidProject } = require('../../validators/projects');
 
-function projectScores(scores) {
-  let computedScores = {
+const averageScores = (number, scores) => {
+  scores.ui_ux = Math.floor(scores.ui_ux / number);
+  scores.quality = Math.floor(scores.quality / number);
+  scores.confidence = Math.floor(scores.confidence / number);
+  scores._standing = Math.floor(scores._standing / number);
+};
+
+function projectReducer(scores) {
+  let length = scores.length;
+
+  let initialObject = {
     ui_ux: 0,
     quality: 0,
     confidence: 0,
     _standing: 0
   };
 
-  for (let score of scores) {
-    computedScores.ui_ux += score.ui_ux;
-    computedScores.quality += score.quality;
-    computedScores.confidence += score.confidence;
-    computedScores._standing += score._standing;
-  }
+  let reducedScores = scores.reduce((sum, score) => {
+    sum.ui_ux += score.ui_ux;
+    sum.quality += score.quality;
+    sum.confidence += score.confidence;
+    sum._standing += score._standing;
+    return sum;
+  }, initialObject);
 
-  computedScores.ui_ux = Math.floor(computedScores.ui_ux / len);
-  computedScores.quality = Math.floor(computedScores.quality / len);
-  computedScores.confidence = Math.floor(computedScores.confidence / len);
-  computedScores._standing = Math.floor(computedScores._standing / len);
-
-  return computedScores;
+  return averageScores(length, reducedScores);
 }
 
 class ProjectsController {
@@ -36,6 +41,15 @@ class ProjectsController {
       });
     }
 
+    const updateUserProjects = (userId, project) => {
+      return new Promise((resolve, reject) => {
+        return User
+          .findByIdAndUpdate(userId, { $push: { projects: project._id } }).exec()
+          .then(() => resolve(project))
+          .catch(error => reject(error));
+      });
+    };
+
     return Project
       .create({
         _owner: req.decoded._id,
@@ -46,14 +60,8 @@ class ProjectsController {
         repository: req.body.repository,
         demo: req.body.demo
       })
-      .then(project => {
-        return User
-          .findByIdAndUpdate(req.body.user_id, { $push: { projects: project._id } }).exec()
-          .then(() => {
-            res.status(201).json(project);
-          })
-          .catch(error => res.status(500).json(error));
-      })
+      .then(project => updateUserProjects(req.body.userId, project))
+      .then(result => res.status(200).json(result))
       .catch(error => res.status(500).json(error));
   }
 
@@ -76,7 +84,7 @@ class ProjectsController {
       .then(projects => {
         function mapProjectScores(callback) {
           for (let project of projects) {
-            project.scores = projectScores(project.scores);
+            project.scores = projectReducer(project.scores);
           }
           callback(null, projects);
         }
@@ -96,7 +104,7 @@ class ProjectsController {
           return res.status(404).send({ message: 'Project not found' });
         }
         const mapProjectScore = (callback) => {
-          project.score = projectScores(project.scores);
+          project.score = projectReducer(project.scores);
           callback(null, project);
         };
 
@@ -175,6 +183,5 @@ class ProjectsController {
       .catch(error => res.status(500).json(error));
   }
 }
-
 
 module.exports = ProjectsController;

@@ -1,46 +1,19 @@
 let mongoose = require('mongoose');
 const Schema = mongoose.Schema,
   User = new Schema({
-    name: {
-      type: String,
-      required: true
-    },
+    name: { type: String, required: true },
     gender: String,
-    role: {
-      type: String,
-      default: 'user'
-    },
-    google_id: {
-      type: Number,
-      unique: true
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true
-    },
+    role: { type: String, default: 'user' },
+    google_id: Number,
+    email: { type: String, required: true, unique: true },
     google_plus: String,
     img_url: String,
-    password: {
-      type: String,
-      unique: true
-    },
-    status: {
-      type: String,
-      default: 'active'
-    },
+    password: { type: String, unique: true },
+    status: { type: String, default: 'active' },
     projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    domain: {
-      type: String
-    },
-    created_at: {
-      type: Date,
-      default: Date.now()
-    },
-    updated_at: {
-      type: Date,
-      default: Date.now()
-    }
+    domain: { type: String },
+    created_at: { type: Date, default: Date.now() },
+    updated_at: { type: Date, default: Date.now() }
   });
 
 User.pre('save', (next) => {

@@ -1,3 +1,4 @@
+'use strict';
 const { sign } = require('jsonwebtoken');
 const { isValidUser } = require('../../validators/users');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
@@ -8,6 +9,23 @@ const { mongoErrorParser } = require('../../parsers');
 const createToken = (user) => {
   return sign(user, env.secretKey, {
     expiresIn: '24h'
+  });
+};
+
+const updateCohort = ({ cohortId, user }) => {
+  return new Promise((resolve, reject) => {
+    return Cohort.findOneAndUpdate({ _id: cohortId, _campers: { $ne: user._id } },
+      { $push: { _campers: user._id } }).exec()
+      .then(() => resolve(user))
+      .catch(error => reject(mongoErrorParser(error)));
+  });
+};
+
+const updateUser = (_id, cohortId, update, options) => {
+  return new Promise((resolve, reject) => {
+    return User.findOneAndUpdate({ _id }, update, options).exec()
+      .then(user => resolve({ cohortId, user }))
+      .catch(error => reject(mongoErrorParser(error)));
   });
 };
 
@@ -33,6 +51,7 @@ class AuthController {
         password: hashedPassword
       })
       .then(user => {
+        user.password = undefined;
         let token = createToken({ _id: user._id });
         res.status(201).json({ user, token });
       })
@@ -42,8 +61,8 @@ class AuthController {
 
   static loginWithGoogle(req, res) {
 
-    if (req.user.data && req.user.data.domain === 'andela.com') {
-      return res.redirect(`/cohorts?id=${req.user.data._id}`);
+    if (req.user.data) {
+      return res.redirect(`/?userid=${req.user.data._id}`);
     }
 
     return res.redirect('/');
@@ -60,9 +79,7 @@ class AuthController {
     }
 
     return User
-      .findOne({ email })
-      .exec()
-      .then(user => {
+      .findOne({ email }).exec().then(user => {
 
         if (!user) {
           return res.status(404).json({
@@ -78,25 +95,21 @@ class AuthController {
         }
 
         let token = createToken({ _id: user._id });
-        return res.status(200).json({
-          user,
-          token
-        });
+        return res.status(200).json({ user, token });
       });
   }
 
   static session(req, res) {
 
     if (!req.session.passport) {
-      return res
-        .status(401)
+      return res.status(401)
         .json({
           status: 'Unauthorized access',
           error: 'Login to have access to the api'
         });
     }
 
-    return res.status(200).json(req.session.passport.user);
+    return res.status(200).json(req.session.passport.user.data);
   }
 
   static googleAuth(accessToken, refreshToken, profile, done) {
@@ -114,16 +127,12 @@ class AuthController {
       }
     };
 
-    let options = {
-      new: true,
-      upsert: true
-    };
+    let options = { new: true, upsert: true };
     // if the user has an andela mail
     if (data.domain === 'andela.com') {
       return User
         .findOneAndUpdate({ google_id: data.id }, update, options)
-        .exec()
-        .then(data => {
+        .exec().then(data => {
           let token = createToken({ _id: data._id });
           return done(null, { data, token });
         })
@@ -134,31 +143,14 @@ class AuthController {
     return Invite
       .findOne({ email: data.emails[0].value }).exec()
       .then(invite => {
-        if (!invite) {
-          return done(null, false, {
-            message: 'Invitation not found'
-          });
-        }
-
-        return User
-          .findOneAndUpdate({ _id: invite._id }, update, options).exec()
-          .then(data => {
-            return Cohort.findOneAndUpdate({
-              _id: invite.cohort, _campers: { $ne: data._id }
-            },
-              {
-                $push: { _campers: data._id }
-              })
-              .exec()
-              .then(() => {
-                let token = createToken({ _id: data._id });
-                return done(null, { data, token });
-              })
-              .catch(err => done(err));
-          })
-          .catch(error => done(mongoErrorParser(error)));
-      })
-      .catch(error => done(mongoErrorParser(error)));
+        if (!invite) return done(null, false, { message: 'Invitation not found' });
+        return updateUser(invite._id, invite.cohort, update, options);
+      }).then(result => {
+        return updateCohort(result);
+      }).then(user => {
+        let token = createToken({ _id: user._id });
+        return done(null, { token, user });
+      }).catch(error => done(error));
   }
 
   static logout(req, res) {

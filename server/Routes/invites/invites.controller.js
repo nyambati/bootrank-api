@@ -1,3 +1,4 @@
+'use strict';
 const { Invite } = require('../../Models');
 
 class InvitesController {
@@ -10,18 +11,11 @@ class InvitesController {
       }
     };
 
-    let options = {
-      upsert: true,
-      new: true
-    };
+    let options = { upsert: true, new: true };
 
     return Invite.findOneAndUpdate({ email: req.body.email }, update, options).exec()
-      .then(invite => {
-        return res.status(200).json(invite);
-      })
-      .catch(error => {
-        return res.status(500).json(error);
-      });
+      .then(invite => res.status(200).json(invite))
+      .catch(error => res.status(500).json(error));
   }
 
   static all(req, res) {

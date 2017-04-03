@@ -11,3 +11,8 @@ module.exports = {
     return errors;
   }
 };
+
+
+{
+  name: '', age:3
+}

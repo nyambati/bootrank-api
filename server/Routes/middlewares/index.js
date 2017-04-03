@@ -3,7 +3,17 @@ const { env } = require('../../config');
 const { User } = require('../../Models');
 
 
-function isAuthenticated(req, res, next) {
+const verifyUserToken = (token, secretKey) => {
+  return new Promise((resolve, reject) => {
+    return jwt.verify(token, secretKey, (error, decoded) => {
+      if (error) return reject(error);
+      return resolve(decoded);
+    });
+  });
+};
+
+const isAuthenticated = (req, res, next) => {
+
   let token = req.headers['x-access-token'];
 
   if (!req.isAuthenticated && !token) {
@@ -12,28 +22,25 @@ function isAuthenticated(req, res, next) {
     });
   }
 
-  jwt.verify(token, env.secretKey, (err, decoded) => {
-    if (err) {
+  return verifyUserToken(token, env.secretKey)
+    .then(decoded => {
+      return User.findById(decoded._id).exec();
+    })
+    .then(user => {
+      if (!user) {
+        return res.status(404)
+          .json({
+            message: 'User not found'
+          });
+      }
+      req.decoded = user;
+      next();
+    }).catch(error => {
       return res.status(403).send({
-        error: 'Unauthorized access, Invalid token'
+        errorMessage: 'Unauthorized access, Invalid token', error
       });
-    }
-
-    return User.findById(decoded._id)
-      .exec()
-      .then(user => {
-        if (!user) {
-          return res.status(404)
-            .json({
-              message: 'User not found'
-            });
-        }
-        req.decoded = user;
-        next();
-      })
-      .catch(error => res.status(500).json(error));
-  });
-}
+    });
+};
 
 module.exports = {
   isAuthenticated

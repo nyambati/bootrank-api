@@ -6,15 +6,20 @@ test:
     - mongo
   ports:
     - "3000:3000"
-    
+
   environment:
-    DATABASE_URL: mongo
-    REDIS_URL: redis
+    DATABASE_URL: mongodb://mongo/bootrank
+    REDIS_URL: redis://redis/10
     PORT: 3000
     SECRET_TOKEN_KEY: ${SECRET_TOKEN_KEY}
     GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     GOOGLE_CALLBACK_URL:  ${GOOGLE_CALLBACK_URL}
+  env_file:
+    - ../../.env
+  volumes: 
+    - "../../:/usr/src"
+  
 redis:
   extends:
     file: ../common/services.yml

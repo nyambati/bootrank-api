@@ -1,3 +1,4 @@
+'use strict';
 const { OAuth2Strategy } = require('passport-google-oauth');
 const passport = require('passport');
 const Auth = require('./Auth.controller');

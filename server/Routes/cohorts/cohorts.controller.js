@@ -1,3 +1,4 @@
+'use strict';
 const { Cohort } = require('../../Models');
 const { isValidCohort } = require('../../validators/cohorts');
 
@@ -24,12 +25,8 @@ class CohortsController {
 
   static all(req, res) {
     return Cohort.find({}).populate('_campers').exec()
-      .then(cohorts => {
-        return res.status(200).json(cohorts);
-      })
-      .catch(error => {
-        return res.status(500).json(error);
-      });
+      .then(cohorts => res.status(200).json(cohorts))
+      .catch(error => res.status(500).json(error));
   }
 
   static find(req, res) {
@@ -75,17 +72,13 @@ class CohortsController {
       return Cohort
         .findOneAndUpdate(req.params.id, { $set: { status: 'closed', closed_at: new Date() } })
         .exec()
-        .then(cohort => {
-          return res.status(204).json(cohort);
-        })
+        .then(cohort => res.status(204).json(cohort))
         .catch(error => res.status(500).json(error));
     }
 
     return Cohort
       .findByIdAndUpdate(req.params.id, update, { new: true }).exec()
-      .then(cohort => {
-        return res.status(204).json(cohort);
-      })
+      .then(cohort => res.status(204).json(cohort))
       .catch(error => res.status(500).json(error));
   }
 
@@ -97,10 +90,8 @@ class CohortsController {
     }
 
     return Cohort
-      .findByIdAndUpdate(req.params.id, { $set: { archived: true, closed_at: new Date() } }).exec()
-      .then(cohort => {
-        return res.status(204).json(cohort);
-      })
+      .findByIdAndUpdate(req.params.id, { $set: { archived: true } }).exec()
+      .then(cohort => res.status(204).json(cohort))
       .catch(error => res.status(500).json(error));
   }
 
